@@ -14,6 +14,8 @@ export async function GET(request, { params }) {
   return NextResponse.json(data)
 }
 
+const num = (v) => (v === '' || v === null || v === undefined) ? null : parseFloat(v)
+
 // PUT /api/opportunities/[id]
 export async function PUT(request, { params }) {
   const supabase = await createClient()
@@ -26,7 +28,19 @@ export async function PUT(request, { params }) {
 
   const { data, error } = await supabase
     .from('opportunities')
-    .update({ ...body, deal_value, cost, profit, profit_pct: parseFloat(profit_pct.toFixed(2)) })
+    .update({
+      ...body,
+      deal_value,
+      cost,
+      profit: parseFloat(profit.toFixed(2)),
+      profit_pct: parseFloat(profit_pct.toFixed(2)),
+      probability: num(body.probability),
+      customer_id: body.customer_id || null,
+      manager_id: body.manager_id || null,
+      closing_date: body.closing_date || null,
+      start_date: body.start_date || null,
+      end_date: body.end_date || null,
+    })
     .eq('id', params.id)
     .select().single()
 

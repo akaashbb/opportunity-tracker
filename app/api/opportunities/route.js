@@ -1,6 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
+// Convert empty string to null for optional numeric fields
+const num = (v) => (v === '' || v === null || v === undefined) ? null : parseFloat(v)
+
 // GET /api/opportunities
 export async function GET(request) {
   const supabase = await createClient()
@@ -41,8 +44,14 @@ export async function POST(request) {
     ...body,
     deal_value,
     cost,
-    profit,
+    profit: parseFloat(profit.toFixed(2)),
     profit_pct: parseFloat(profit_pct.toFixed(2)),
+    probability: num(body.probability),
+    customer_id: body.customer_id || null,
+    manager_id: body.manager_id || null,
+    closing_date: body.closing_date || null,
+    start_date: body.start_date || null,
+    end_date: body.end_date || null,
     user_id: user.id,
   }]).select().single()
 

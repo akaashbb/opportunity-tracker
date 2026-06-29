@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Save } from 'lucide-react'
 
@@ -8,6 +8,16 @@ const STAGES = ['Lead', 'Proposal', 'Negotiation', 'Won', 'Lost']
 const STATUSES = ['Open', 'Closed']
 const PRIORITIES = ['High', 'Medium', 'Low']
 const CURRENCIES = ['INR', 'USD', 'EUR', 'GBP', 'AED']
+
+// Defined OUTSIDE component so React doesn't remount it on every keystroke
+function Field({ label, required, children, full }) {
+  return (
+    <div className={`form-group ${full ? 'form-full' : ''}`}>
+      <label className="form-label">{label}{required && ' *'}</label>
+      {children}
+    </div>
+  )
+}
 
 const empty = {
   opp_id: '', project_name: '', customer_id: '', manager_id: '', department: '',
@@ -28,8 +38,8 @@ export default function OpportunityForm({ editId }) {
   const isEdit = !!editId
 
   useEffect(() => {
-    fetch('/api/managers').then(r => r.json()).then(setManagers)
-    fetch('/api/customers').then(r => r.json()).then(setCustomers)
+    fetch('/api/managers').then(r => r.json()).then(d => setManagers(Array.isArray(d) ? d : []))
+    fetch('/api/customers').then(r => r.json()).then(d => setCustomers(Array.isArray(d) ? d : []))
     if (isEdit) {
       setLoading(true)
       fetch(`/api/opportunities/${editId}`).then(r => r.json()).then(data => {
@@ -70,16 +80,6 @@ export default function OpportunityForm({ editId }) {
   }
 
   if (loading) return <div className="loading"><div className="spinner"/><span>Loading...</span></div>
-
-  const Field = ({ label, name, type = 'text', required, children, full, readOnly, className }) => (
-    <div className={`form-group ${full ? 'form-full' : ''}`}>
-      <label className="form-label">{label}{required && ' *'}</label>
-      {children || (
-        <input className={`form-control ${className || ''}`} type={type} value={form[name] || ''} readOnly={readOnly}
-          onChange={e => !readOnly && set(name, e.target.value)} required={required} />
-      )}
-    </div>
-  )
 
   return (
     <div>

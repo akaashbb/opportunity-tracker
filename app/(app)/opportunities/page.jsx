@@ -21,14 +21,15 @@ export default function OpportunitiesPage() {
     const params = new URLSearchParams()
     Object.entries(filters).forEach(([k, v]) => { if (v) params.set(k, v) })
     const res = await fetch(`/api/opportunities?${params}`)
-    setOpps(await res.json())
+    const data = await res.json()
+    setOpps(Array.isArray(data) ? data : [])
     setLoading(false)
   }, [filters])
 
   useEffect(() => { fetchOpps() }, [fetchOpps])
   useEffect(() => {
-    fetch('/api/managers').then(r => r.json()).then(setManagers)
-    fetch('/api/customers').then(r => r.json()).then(setCustomers)
+    fetch('/api/managers').then(r => r.json()).then(d => setManagers(Array.isArray(d) ? d : []))
+    fetch('/api/customers').then(r => r.json()).then(d => setCustomers(Array.isArray(d) ? d : []))
   }, [])
 
   const handleDelete = async (id) => {
