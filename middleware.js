@@ -34,14 +34,18 @@ export async function middleware(request) {
   // Allow login page and auth callback through
   if (pathname.startsWith('/login') || pathname.startsWith('/auth')) {
     if (user && pathname === '/login') {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
     }
     return supabaseResponse
   }
 
   // Redirect to login if not authenticated
   if (!user) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
   }
 
   return supabaseResponse
